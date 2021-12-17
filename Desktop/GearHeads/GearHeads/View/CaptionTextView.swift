@@ -13,7 +13,7 @@ class CaptionTextView: UITextView {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
         label.textColor = .darkGray
-        label.text = "Please Enter Your Tweet Here"
+        label.text = "Please Enter Your Rev Here"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

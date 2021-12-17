@@ -8,11 +8,11 @@
 
 import UIKit
 
-struct TweetViewModel {
+struct RevViewModel {
     
     // MARK: - Properties
     
-    let tweet: Tweet
+    let rev: Rev
     let user: User
     
     var profileImageUrl: URL? {
@@ -25,7 +25,7 @@ struct TweetViewModel {
         formatter.maximumUnitCount = 1
         formatter.unitsStyle = .abbreviated
         let now = Date()
-        return formatter.string(from: tweet.timestamp, to: now) ?? "2m"
+        return formatter.string(from: rev.timestamp, to: now) ?? "2m"
     }
     
     var usernameText: String {
@@ -35,15 +35,15 @@ struct TweetViewModel {
     var headerTimestamp: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a · MM/dd/yyyy"
-        return formatter.string(from: tweet.timestamp)
+        return formatter.string(from: rev.timestamp)
     }
     
     var retweetsAttributedString: NSAttributedString? {
-        return attributedText(withValue: tweet.likes, text: "Retweets")
+        return attributedText(withValue: rev.likes, text: "Retweets")
     }
     
     var likesAttributedString: NSAttributedString? {
-        return attributedText(withValue: tweet.likes, text: "Likes")
+        return attributedText(withValue: rev.likes, text: "Likes")
     }
     
     var userInfoText: NSAttributedString {
@@ -61,28 +61,28 @@ struct TweetViewModel {
     }
     
     var likeButtonTintColor: UIColor {
-        return tweet.didLike ? .red : .lightGray
+        return rev.didLike ? .red : .lightGray
     }
     
     var likeButtonImage: UIImage {
-        let imageName = tweet.didLike ? "like_filled" : "like"
+        let imageName = rev.didLike ? "like_filled" : "like"
         return UIImage(named: imageName)!
     }
     
     var shouldHideReplyLabel: Bool {
-        return !tweet.isReply
+        return !rev.isReply
     }
     
     var replyText: String? {
-        guard let replyingToUsername = tweet.replyingTo else { return nil }
+        guard let replyingToUsername = rev.replyingTo else { return nil }
         return "→ replying to @\(replyingToUsername)"
     }
     
     // MARK: - Lifecycle
     
-    init(tweet: Tweet) {
-        self.tweet = tweet
-        self.user = tweet.user
+    init(rev: Rev) {
+        self.rev = rev
+        self.user = rev.user
     }
     
     fileprivate func attributedText(withValue value: Int, text: String) -> NSAttributedString {
@@ -99,7 +99,7 @@ struct TweetViewModel {
     
     func size(forWidth width: CGFloat) -> CGSize {
         let measurementLabel = UILabel()
-        measurementLabel.text = tweet.caption
+        measurementLabel.text = rev.caption
         measurementLabel.numberOfLines = 0
         measurementLabel.lineBreakMode = .byWordWrapping
         measurementLabel.translatesAutoresizingMaskIntoConstraints = false

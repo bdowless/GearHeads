@@ -10,7 +10,7 @@ import Firebase
 
 class RegistrationController: UIViewController {
     
-    //MARK: Properties
+    //MARK: - Properties
     
     private let imagePicker = UIImagePickerController()
     private var profileImage: UIImage?
@@ -18,7 +18,9 @@ class RegistrationController: UIViewController {
     private let uploadPhotoButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(#imageLiteral(resourceName: "plus_photo"), for: .normal)
-        button.tintColor = .white
+        button.imageView?.contentMode = .scaleAspectFit
+        button.imageView?.clipsToBounds = true
+        button.tintColor = .systemRed
         button.addTarget(self, action: #selector(plusPhotoButton), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -26,26 +28,26 @@ class RegistrationController: UIViewController {
     
     
     private lazy var emailContainerView: UIView = {
-        let view = Utilities().inputContainerView(image: #imageLiteral(resourceName: "ic_mail_outline_white_2x-1"), textField: emailTextField)
+        let view = Utilities().inputContainerView(imageName: "envelope", textField: emailTextField)
         
         return view
         
     }()
     
     private lazy var passwordContainerView: UIView = {
-        let iv = Utilities().inputContainerView(image: #imageLiteral(resourceName: "ic_lock_outline_white_2x"), textField: passwordTextField)
+        let iv = Utilities().inputContainerView(imageName: "lock", textField: passwordTextField)
         
         return iv
     }()
     
     private lazy var fullnameContainerView: UIView = {
-        let iv = Utilities().inputContainerView(image: #imageLiteral(resourceName: "ic_person_outline_white_2x"), textField: fullnameTextField)
+        let iv = Utilities().inputContainerView(imageName: "person", textField: fullnameTextField)
         
         return iv
     }()
     
     private lazy var usernameContainerView: UIView = {
-        let iv = Utilities().inputContainerView(image: #imageLiteral(resourceName: "ic_person_outline_white_2x"), textField: usernameTextField)
+        let iv = Utilities().inputContainerView(imageName: "person", textField: usernameTextField)
         
         return iv
     }()
@@ -69,7 +71,6 @@ class RegistrationController: UIViewController {
     
     private let usernameTextField: UITextField = {
         let iv = Utilities().textField(placeholder: "Username")
-        iv.isSecureTextEntry = true
         return iv
     }()
     
@@ -77,19 +78,18 @@ class RegistrationController: UIViewController {
         let button = UIButton()
         button.setTitle("Sign Up", for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
-        button.setTitleColor(.twitterBlue, for: .normal)
-        button.backgroundColor = .white
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .systemRed
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 5
         button.heightAnchor.constraint(equalToConstant: 50) .isActive = true
-        button.addTarget(self, action: #selector(handleregistrationButton), for: .touchUpInside)
-        
+        button.addTarget(self, action: #selector(handleRegistration), for: .touchUpInside)
         return button
     }()
     
-    let signUpButton: UIButton = {
+    let alreadyHaveAccountButton: UIButton = {
         let button = Utilities().attributedButton("Already have an account? ", "Log In")
-        button.addTarget(self, action: #selector(handleLogIn), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
         return button
     }()
 
@@ -99,9 +99,9 @@ class RegistrationController: UIViewController {
         
     }
     
-    //MARK: Selectors
+    //MARK: - Selectors
     
-    @objc func handleLogIn() {
+    @objc func handleDismiss() {
         navigationController?.popViewController(animated: true)
     }
     
@@ -109,7 +109,7 @@ class RegistrationController: UIViewController {
         present(imagePicker, animated: true, completion: nil)
     }
     
-    @objc func handleregistrationButton() {
+    @objc func handleRegistration() {
         guard let profileImage = profileImage else {
             print("Please select profile image")
             return
@@ -117,29 +117,38 @@ class RegistrationController: UIViewController {
         
         guard let email = emailTextField.text else { return }
         guard let password = passwordTextField.text else { return }
-        guard let username = usernameTextField.text else { return }
+        guard let username = usernameTextField.text?.lowercased() else { return }
         guard let fullname = fullnameTextField.text else { return }
-        
-
         let credentials = AuthCredentials(email: email, password: password, fullname: fullname, username: username, profileImage: profileImage)
+        
+        
         AuthService.shared.registerUser(credentials: credentials) { (error, ref) in
-            print("DEBUG: Sign Up Succesfull")
+            if let error = error {
+                print("DEBUG error is \(error.localizedDescription)")
+                return
+            }
+            guard let uid = ref.key else { return }
+            
+            UserService.shared.fetchUser(uid: uid) { user in
+                
+                guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else { return }
+                guard let tab = window.rootViewController as? MainTabController else { return }
+                
+                tab.user = user
+                self.dismiss(animated: true)
+            }
+            
+            
         }
-
     }
 
-    //MARK: Helpers
+    // MARK: - Helpers
     
     func configureUI() {
-        view.backgroundColor = .twitterBlue
+        view.backgroundColor = .white
         
         imagePicker.delegate = self
         imagePicker.allowsEditing = true
-        
-        
-        view.addSubview(signUpButton)
-        signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor) .isActive = true
-        signUpButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10) .isActive = true
         
         view.addSubview(uploadPhotoButton)
         uploadPhotoButton.heightAnchor.constraint(equalToConstant: 150) .isActive = true
@@ -147,9 +156,9 @@ class RegistrationController: UIViewController {
         uploadPhotoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor) .isActive = true
         uploadPhotoButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 40) .isActive = true
         
-        let stack = UIStackView(arrangedSubviews: [emailContainerView, passwordContainerView, fullnameContainerView, usernameContainerView, registrationButton])
+        let stack = UIStackView(arrangedSubviews: [emailContainerView, passwordContainerView, fullnameContainerView, usernameContainerView])
         stack.axis = .vertical
-        stack.spacing = 10
+        stack.spacing = 20
         stack.distribution = .fillEqually
         stack.translatesAutoresizingMaskIntoConstraints = false
         
@@ -157,9 +166,20 @@ class RegistrationController: UIViewController {
         stack.centerXAnchor.constraint(equalTo: view.centerXAnchor) .isActive = true
         stack.topAnchor.constraint(equalTo: uploadPhotoButton.bottomAnchor, constant: 10) .isActive = true
         stack.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -32) .isActive = true
+        
+        view.addSubview(registrationButton)
+        registrationButton.anchor(top: stack.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor,
+        paddingTop: 32, paddingLeft: 32, paddingRight: 32)
+        
+        view.addSubview(alreadyHaveAccountButton)
+        alreadyHaveAccountButton.anchor(left: view.leftAnchor,
+                                     bottom: view.safeAreaLayoutGuide.bottomAnchor,
+                                     right: view.rightAnchor, paddingLeft: 40, paddingRight: 40)
         }
     }
 
+
+// MARK: - UIImagePickerControllerDelegate
 
 extension RegistrationController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     

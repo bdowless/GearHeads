@@ -218,7 +218,7 @@ SOFTWARE.
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2020 Firebase, Inc.
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -235,7 +235,7 @@ SOFTWARE.
 
 ## FirebaseAnalytics
 
-Copyright 2020 Google
+Copyright 2021 Google
 
 ## FirebaseAuth
 
@@ -428,7 +428,7 @@ Copyright 2020 Google
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2020 Firebase, Inc.
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -634,7 +634,7 @@ Copyright 2020 Google
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2020 Firebase, Inc.
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -840,7 +840,7 @@ Copyright 2020 Google
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2020 Firebase, Inc.
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -1046,7 +1046,7 @@ Copyright 2020 Google
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2020 Firebase, Inc.
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -1252,7 +1252,7 @@ Copyright 2020 Google
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2020 Firebase, Inc.
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -1458,7 +1458,7 @@ Copyright 2020 Google
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2020 Firebase, Inc.
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -1681,7 +1681,7 @@ Copyright 2020 Google
 
 ## GoogleAppMeasurement
 
-Copyright 2020 Google
+Copyright 2021 Google
 
 ## GoogleDataTransport
 
@@ -1874,7 +1874,7 @@ Copyright 2020 Google
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2020 Firebase, Inc.
+   Copyright [yyyy] [name of copyright owner]
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

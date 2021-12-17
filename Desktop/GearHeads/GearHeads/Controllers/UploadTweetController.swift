@@ -19,7 +19,7 @@ class UploadTweetController: UIViewController {
     private lazy var actionButton: UIButton = {
         let button = UIButton(type: .system)
         button.backgroundColor = .twitterBlue
-        button.setTitle("Tweet", for: .normal)
+        button.setTitle("Post", for: .normal)
         button.titleLabel?.textAlignment = .center
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.setTitleColor(.white, for: .normal)
@@ -34,11 +34,10 @@ class UploadTweetController: UIViewController {
     
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.setDimensions(width: 48, height: 48)
         iv.layer.cornerRadius = 48 / 2
-        iv.backgroundColor = .twitterBlue
         return iv
     }()
     
@@ -80,7 +79,7 @@ class UploadTweetController: UIViewController {
     @objc func handleUploadTweet() {
         guard let caption = captionTextView.text else { return }
             
-        TweetService.shared.uploadTweet(caption: caption, type: config) { (error, ref) in
+        RevService.shared.uploadTweet(caption: caption, type: config) { (error, ref) in
             if let error = error {
                 print("DEBUG: Failed to upload tweet with error \(error.localizedDescription)")
                 return
@@ -89,10 +88,10 @@ class UploadTweetController: UIViewController {
             if case .reply(let tweet) = self.config {
 //                NotificationService.shared.uploadNotification(toUser: tweet.user,
 //                                                              type: .reply,
-//                                                              tweetID: tweet.tweetID)
+//                                                              revID: tweet.revID)
             }
             
-            self.uploadMentionNotification(forCaption: caption, tweetID: ref.key)
+            self.uploadMentionNotification(forCaption: caption, revID: ref.key)
 
             self.dismiss(animated: true, completion: nil)
         }
@@ -100,7 +99,7 @@ class UploadTweetController: UIViewController {
     
     // MARK: - API
     
-    fileprivate func uploadMentionNotification(forCaption caption: String, tweetID: String?) {
+    fileprivate func uploadMentionNotification(forCaption caption: String, revID: String?) {
         guard caption.contains("@") else { return }
         let words = caption.components(separatedBy: .whitespacesAndNewlines)
         
@@ -113,7 +112,7 @@ class UploadTweetController: UIViewController {
             UserService.shared.fetchUser(uid: username) { mentionedUser in
 //                NotificationService.shared.uploadNotification(toUser: mentionedUser,
 //                                                              type: .mention,
-//                                                              tweetID: tweetID)
+//                                                              revID: revID)
             }
         }
     }
@@ -149,9 +148,6 @@ class UploadTweetController: UIViewController {
     }
     
     func configureNavigationBar() {
-        navigationController?.navigationBar.barTintColor = .white
-        navigationController?.navigationBar.isTranslucent = false
-        
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: actionButton)
     }

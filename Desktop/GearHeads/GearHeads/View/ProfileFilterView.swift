@@ -31,7 +31,7 @@ class ProfileFilterView: UIView {
     
     private let underlineView: UIView = {
         let view = UIView()
-        view.backgroundColor = .twitterBlue
+        view.backgroundColor = .systemRed
         return view
     }()
     

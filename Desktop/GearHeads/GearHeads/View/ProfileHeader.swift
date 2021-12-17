@@ -27,7 +27,7 @@ class ProfileHeader: UICollectionReusableView {
     
     private lazy var containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.twitterBlue
+        view.backgroundColor = UIColor.systemRed
         
         view.addSubview(backButton)
         backButton.anchor(top: view.topAnchor, left: view.leftAnchor,
@@ -46,9 +46,8 @@ class ProfileHeader: UICollectionReusableView {
     
     private let profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .lightGray
         iv.layer.borderColor = UIColor.white.cgColor
         iv.layer.borderWidth = 4
         return iv
@@ -57,9 +56,9 @@ class ProfileHeader: UICollectionReusableView {
     lazy var editProfileFollowButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Loading", for: .normal)
-        button.layer.borderColor = UIColor.twitterBlue.cgColor
+        button.layer.borderColor = UIColor.systemRed.cgColor
         button.layer.borderWidth = 1.25
-        button.setTitleColor(.twitterBlue, for: .normal)
+        button.setTitleColor(.systemRed, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
         button.addTarget(self, action: #selector(handleEditProfileFollow), for: .touchUpInside)
         return button

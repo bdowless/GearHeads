@@ -9,11 +9,11 @@ import UIKit
 import SDWebImage
 import Firebase
 
-private let reuseIdentifier = "tweetCell"
+private let reuseIdentifier = "RevCell"
 
 class FeedController: UICollectionViewController {
     
-    private var tweets = [Tweet]() {
+    private var revs = [Rev]() {
         didSet{(collectionView.reloadData())}
     }
     
@@ -37,14 +37,14 @@ class FeedController: UICollectionViewController {
         super.viewDidLoad()
         configureUI()
         configureLeftBarButton()
-        fetchTweets()
+        fetchRevs()
     }
     
     // MARK: API
     
-    func fetchTweets() {
-        TweetService.shared.fetchTweets { tweets in
-            self.tweets = tweets
+    func fetchRevs() {
+        RevService.shared.fetchTweets { revs in
+            self.revs = revs
         }
     }
     
@@ -54,6 +54,7 @@ class FeedController: UICollectionViewController {
         do {
             try Auth.auth().signOut()
             let controller = LoginController()
+            controller.modalPresentationStyle = .fullScreen
             present(controller, animated: true, completion: nil)
         } catch let error {
             print("DEBUG: FAiled to sign out with error \(error.localizedDescription)")
@@ -63,17 +64,18 @@ class FeedController: UICollectionViewController {
     func configureUI() {
         collectionView.backgroundColor = .white
         
-        collectionView.register(TweetCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        collectionView.register(RevCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         
-        let twitterimage = UIImageView(image: #imageLiteral(resourceName: "twitter_logo_blue"))
-        twitterimage.contentMode = .scaleAspectFit
-        twitterimage.heightAnchor.constraint(equalToConstant: 44) .isActive = true
-        twitterimage.widthAnchor.constraint(equalToConstant: 44) .isActive = true
-        twitterimage.translatesAutoresizingMaskIntoConstraints = false
-        navigationItem.titleView = twitterimage
+        let iconImage = UIImageView(image: UIImage(named: "gearheads-logo"))
+        iconImage.contentMode = .scaleAspectFit
+        iconImage.heightAnchor.constraint(equalToConstant: 44) .isActive = true
+        iconImage.widthAnchor.constraint(equalToConstant: 44) .isActive = true
+        iconImage.translatesAutoresizingMaskIntoConstraints = false
+        navigationItem.titleView = iconImage
         
         let profileImageView = UIImageView()
-        profileImageView.backgroundColor = .twitterBlue
+        profileImageView.contentMode = .scaleAspectFit
+        profileImageView.clipsToBounds = true
         profileImageView.widthAnchor.constraint(equalToConstant: 32) .isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 32) .isActive = true
         profileImageView.layer.cornerRadius = 32 / 2
@@ -101,12 +103,12 @@ class FeedController: UICollectionViewController {
 extension FeedController {
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return tweets.count
+        return revs.count
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! TweetCell
-        cell.tweet = tweets[indexPath.row]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! RevCell
+        cell.rev = revs[indexPath.row]
         
         // setting the delegate property in the cell
         // self refers to this view controller (FeedController)
@@ -114,6 +116,12 @@ extension FeedController {
         // when the cell calls the fucntion via the delegate, the code that is in the view controller gets executed
         cell.delegate = self
         return cell
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let rev = revs[indexPath.row]
+        let controller = RevDetailController(rev: rev)
+        navigationController?.pushViewController(controller, animated: true)
     }
 }
 
@@ -135,32 +143,31 @@ extension FeedController: TweetCellDelegate {
         }
     }
     
-    func handleLikeTapped(_ cell: TweetCell) {
-        guard let tweet = cell.tweet else { return }
+    func handleLikeTapped(_ cell: RevCell) {
+        guard let rev = cell.rev else { return }
         
-        TweetService.shared.likeTweet(tweet: tweet) { (err, ref) in
-            cell.tweet?.didLike.toggle()
-            let likes = tweet.didLike ? tweet.likes - 1 : tweet.likes + 1
-            cell.tweet?.likes = likes
+        RevService.shared.likeTweet(tweet: rev) { (err, ref) in
+            cell.rev?.didLike.toggle()
+            let likes = rev.didLike ? rev.likes - 1 : rev.likes + 1
+            cell.rev?.likes = likes
             
             // only upload notification if tweet is being liked
-            guard !tweet.didLike else { return }
-//            NotificationService.shared.uploadNotification(toUser: tweet.user,
-//                                                          type: .like,
-//                                                          tweetID: tweet.tweetID)
+            guard !rev.didLike else { return }
+            let uid = rev.user.uid
+            NotificationService.uploadNotification(type: .like, toUid: uid)
         }
     }
     
-    func handleReplyTapped(_ cell: TweetCell) {
-        guard let tweet = cell.tweet else { return }
-        let controller = UploadTweetController(user: tweet.user, config: .reply(tweet))
+    func handleReplyTapped(_ cell: RevCell) {
+        guard let rev = cell.rev else { return }
+        let controller = UploadTweetController(user: rev.user, config: .reply(rev))
         let nav = UINavigationController(rootViewController: controller)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true, completion: nil)
     }
     
-    func handleProfileImageTapped(_ cell: TweetCell) {
-        guard let user = cell.tweet?.user else { return }
+    func handleProfileImageTapped(_ cell: RevCell) {
+        guard let user = cell.rev?.user else { return }
         let controller = ProfileController(user: user)
         navigationController?.pushViewController(controller, animated: true)
     }

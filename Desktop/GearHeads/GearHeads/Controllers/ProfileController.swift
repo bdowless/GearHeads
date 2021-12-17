@@ -1,7 +1,7 @@
 import UIKit
 import Firebase
 
-private let reuseIdentifier = "TweetCell"
+private let reuseIdentifier = "RevCell"
 private let headerIdentifier = "ProfileHeader"
 
 class ProfileController: UICollectionViewController {
@@ -14,11 +14,11 @@ class ProfileController: UICollectionViewController {
         didSet { collectionView.reloadData() }
     }
     
-    private var tweets = [Tweet]()
-    private var likedTweets = [Tweet]()
-    private var replies = [Tweet]()
+    private var tweets = [Rev]()
+    private var likedTweets = [Rev]()
+    private var replies = [Rev]()
     
-    private var currentDataSource: [Tweet] {
+    private var currentDataSource: [Rev] {
         switch selectedFilter {
         case .tweets: return tweets
         case .replies: return replies
@@ -56,20 +56,20 @@ class ProfileController: UICollectionViewController {
     // MARK: - API
     
     func fetchTweets() {
-        TweetService.shared.fetchTweets(withUid: user.uid) { tweets in
+        RevService.shared.fetchTweets(withUid: user.uid) { tweets in
             self.tweets = tweets
             self.collectionView.reloadData()
         }
     }
     
     func fetchLikedTweets() {
-        TweetService.shared.fetchLikes(forUser: user) { tweets in
+        RevService.shared.fetchLikes(forUser: user) { tweets in
             self.likedTweets = tweets
         }
     }
     
     func fetchReplies() {
-        TweetService.shared.fetchReplies(forUser: user) { tweets in
+        RevService.shared.fetchReplies(forUser: user) { tweets in
             self.replies = tweets
         }
     }
@@ -95,7 +95,7 @@ class ProfileController: UICollectionViewController {
         collectionView.backgroundColor = .white
         collectionView.contentInsetAdjustmentBehavior = .never
 
-        collectionView.register(TweetCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        collectionView.register(RevCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.register(ProfileHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
         
         guard let tabHeight = tabBarController?.tabBar.frame.height else { return }
@@ -111,8 +111,8 @@ extension ProfileController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! TweetCell
-        cell.tweet = currentDataSource[indexPath.row]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! RevCell
+        cell.rev = currentDataSource[indexPath.row]
         return cell
     }
 }
@@ -128,7 +128,7 @@ extension ProfileController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let controller = TweetController(tweet: currentDataSource[indexPath.row])
+        let controller = RevDetailController(rev: currentDataSource[indexPath.row])
         navigationController?.pushViewController(controller, animated: true)
     }
 }
@@ -148,7 +148,7 @@ extension ProfileController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let viewModel = TweetViewModel(tweet: currentDataSource[indexPath.row])
+        let viewModel = RevViewModel(rev: currentDataSource[indexPath.row])
         var height = viewModel.size(forWidth: view.frame.width).height + 72
         
         if currentDataSource[indexPath.row].isReply {
@@ -185,8 +185,7 @@ extension ProfileController: ProfileHeaderDelegate {
             UserService.shared.followUser(uid: user.uid) { (ref, err) in
                 self.user.isFollowed = true
                 self.collectionView.reloadData()
-                
-//                NotificationService.shared.uploadNotification(toUser: self.user, type: .follow)
+                NotificationService.uploadNotification(type: .follow, toUid: self.user.uid)
             }
         }
     }

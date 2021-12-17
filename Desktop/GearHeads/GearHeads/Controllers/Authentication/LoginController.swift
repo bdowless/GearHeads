@@ -17,19 +17,19 @@ class LoginController: UIViewController {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.image = #imageLiteral(resourceName: "TwitterLogo")
+        iv.image = UIImage(named: "gearheads-logo")
         return iv
     }()
     
     private lazy var emailContainerView: UIView = {
         let image = #imageLiteral(resourceName: "ic_mail_outline_white_2x-1")
-        let view = Utilities().inputContainerView(image: image, textField: emailTextField)
+        let view = Utilities().inputContainerView(imageName: "envelope", textField: emailTextField)
         return view
     }()
     
     private lazy var passwordContainerView: UIView = {
         let image = #imageLiteral(resourceName: "ic_lock_outline_white_2x")
-        let view = Utilities().inputContainerView(image: image, textField: passwordTextField)
+        let view = Utilities().inputContainerView(imageName: "lock", textField: passwordTextField)
         return view
     }()
     
@@ -47,8 +47,8 @@ class LoginController: UIViewController {
     private let loginButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Log In", for: .normal)
-        button.setTitleColor(.twitterBlue, for: .normal)
-        button.backgroundColor = .white
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .systemRed
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
         button.layer.cornerRadius = 5
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
@@ -98,7 +98,7 @@ class LoginController: UIViewController {
     // MARK: - Helpers
     
     func configureUI() {
-        view.backgroundColor = .twitterBlue
+        view.backgroundColor = .white
         navigationController?.navigationBar.barStyle = .black
         navigationController?.navigationBar.isHidden = true
         

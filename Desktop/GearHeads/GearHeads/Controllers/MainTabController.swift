@@ -23,7 +23,7 @@ class MainTabController: UITabBarController {
     let actionButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = .white
-        button.backgroundColor = .twitterBlue
+        button.backgroundColor = .systemRed
         button.setImage(#imageLiteral(resourceName: "new_tweet"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 56/2
@@ -34,7 +34,7 @@ class MainTabController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
+        tabBar.tintColor = .systemRed
         configureActionButton()
         authenticateUserAndConfigureUI()
     }
@@ -78,22 +78,22 @@ class MainTabController: UITabBarController {
     
 //        let feed = templateController(image: #imageLiteral(resourceName: "home_unselected-1"), rootViewController: FeedController(user: user))
         
-        let feed = templateController(image: #imageLiteral(resourceName: "home_unselected"), rootViewController: FeedController(user: user))
+        let feed = templateController(image: UIImage(systemName: "house"), rootViewController: FeedController(user: user))
         
         let explore = UINavigationController(rootViewController: ExploreController())
-        explore.tabBarItem.image = #imageLiteral(resourceName: "search_unselected")
+        explore.tabBarItem.image = UIImage(systemName: "magnifyingglass")
         
         let notifications = UINavigationController(rootViewController: NotificationsController())
-        notifications.tabBarItem.image = #imageLiteral(resourceName: "mail")
+        notifications.tabBarItem.image = UIImage(systemName: "bell")
         
-        let conversations = UINavigationController(rootViewController: ConversationsController())
-        conversations.tabBarItem.image = #imageLiteral(resourceName: "comment")
+        let profile = UINavigationController(rootViewController: ProfileController(user: user))
+        profile.tabBarItem.image = UIImage(systemName: "person")
         
-        viewControllers = [feed, explore, notifications, conversations]
+        viewControllers = [feed, explore, notifications, profile]
         
     }
     
-    func templateController(image: UIImage, rootViewController: UIViewController) -> UINavigationController {
+    func templateController(image: UIImage?, rootViewController: UIViewController) -> UINavigationController {
         let nav = UINavigationController(rootViewController: rootViewController)
         nav.tabBarItem.image = image
         return nav

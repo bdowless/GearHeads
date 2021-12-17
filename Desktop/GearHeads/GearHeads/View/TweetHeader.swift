@@ -17,7 +17,7 @@ class TweetHeader: UICollectionReusableView {
     
     // MARK: - Properties
     
-    var tweet: Tweet? {
+    var rev: Rev? {
         didSet { configure() }
     }
     
@@ -25,11 +25,10 @@ class TweetHeader: UICollectionReusableView {
     
     private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
+        iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.setDimensions(width: 48, height: 48)
         iv.layer.cornerRadius = 48 / 2
-        iv.backgroundColor = .twitterBlue
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleProfileImageTapped))
         iv.addGestureRecognizer(tap)
@@ -220,12 +219,12 @@ class TweetHeader: UICollectionReusableView {
     // MARK: - Helpers
     
     func configure() {
-        guard let tweet = tweet else { return }
+        guard let rev = rev else { return }
         
-        let viewModel = TweetViewModel(tweet: tweet)
+        let viewModel = RevViewModel(rev: rev)
         
-        captionLabel.text = tweet.caption
-        fullnameLabel.text = tweet.user.fullname
+        captionLabel.text = rev.caption
+        fullnameLabel.text = rev.user.fullname
         usernameLabel.text = viewModel.usernameText
         profileImageView.sd_setImage(with: viewModel.profileImageUrl)
         dateLabel.text = viewModel.headerTimestamp
