@@ -77,7 +77,7 @@ class RegistrationController: UIViewController {
         let button = UIButton()
         button.setTitle("Sign Up", for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
-        button.setTitleColor(.twitterblue, for: .normal)
+        button.setTitleColor(.twitterBlue, for: .normal)
         button.backgroundColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 5
@@ -87,17 +87,11 @@ class RegistrationController: UIViewController {
         return button
     }()
     
- 
-    
-    
     let signUpButton: UIButton = {
-        let button = Utilities().atrributedButton(firstPart: "Already Have An Account ", secondPart: "Log In")
+        let button = Utilities().attributedButton("Already have an account? ", "Log In")
         button.addTarget(self, action: #selector(handleLogIn), for: .touchUpInside)
         return button
     }()
-    
-    
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -137,7 +131,7 @@ class RegistrationController: UIViewController {
     //MARK: Helpers
     
     func configureUI() {
-        view.backgroundColor = .twitterblue
+        view.backgroundColor = .twitterBlue
         
         imagePicker.delegate = self
         imagePicker.allowsEditing = true

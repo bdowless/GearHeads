@@ -23,7 +23,7 @@ class MainTabController: UITabBarController {
     let actionButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = .white
-        button.backgroundColor = .twitterblue
+        button.backgroundColor = .twitterBlue
         button.setImage(#imageLiteral(resourceName: "new_tweet"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 56/2
@@ -65,10 +65,9 @@ class MainTabController: UITabBarController {
     //MARK: Selectors
     @objc func actionButtonTapped() {
         guard let user = user else { return }
-        let nav = UINavigationController(rootViewController: uploadTweetController(user: user))
+        let nav = UINavigationController(rootViewController: UploadTweetController(user: user, config: .tweet))
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true, completion: nil)
-        
     }
     
     //MARK: Helpers

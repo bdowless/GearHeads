@@ -12,17 +12,17 @@ import Firebase
 private let reuseIdentifier = "tweetCell"
 
 class FeedController: UICollectionViewController {
-     
+    
     private var tweets = [Tweet]() {
         didSet{(collectionView.reloadData())}
     }
-
+    
     //MARK: Properties
     
     var user: User
     
     //MARK: LifeCycle
-
+    
     init(user: User) {
         self.user = user
         super.init(collectionViewLayout: UICollectionViewFlowLayout())
@@ -73,7 +73,7 @@ class FeedController: UICollectionViewController {
         navigationItem.titleView = twitterimage
         
         let profileImageView = UIImageView()
-        profileImageView.backgroundColor = .twitterblue
+        profileImageView.backgroundColor = .twitterBlue
         profileImageView.widthAnchor.constraint(equalToConstant: 32) .isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 32) .isActive = true
         profileImageView.layer.cornerRadius = 32 / 2
@@ -85,7 +85,7 @@ class FeedController: UICollectionViewController {
     
     func configureLeftBarButton() {
         let profileImageView = UIImageView()
-        profileImageView.backgroundColor = .twitterblue
+        profileImageView.backgroundColor = .twitterBlue
         profileImageView.widthAnchor.constraint(equalToConstant: 32) .isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 32) .isActive = true
         profileImageView.layer.cornerRadius = 32 / 2
@@ -115,10 +115,9 @@ extension FeedController {
         cell.delegate = self
         return cell
     }
-    
+}
 
-    
-    }
+// MARK: - UICollectionViewDelegateFlowLayout
 
 extension FeedController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -126,12 +125,43 @@ extension FeedController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-// view controller conforms to protocol and implements functions that are part of protocol
-extension FeedController: tweetCellDelegate {
-    func handleProfileImageTapped() {
-        print("DEBUG: ACTION TAPPED in the collectionViewController")
-        // when function gets called in cell, the code that gets executed happens here
-        let controller = ProfileController(collectionViewLayout: UICollectionViewFlowLayout())
+// MARK: - TweetCellDelegate
+
+extension FeedController: TweetCellDelegate {
+    func handleFetchUser(withUsername username: String) {
+        UserService.shared.fetchUser(uid: username) { user in
+            let controller = ProfileController(user: user)
+            self.navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+    
+    func handleLikeTapped(_ cell: TweetCell) {
+        guard let tweet = cell.tweet else { return }
+        
+        TweetService.shared.likeTweet(tweet: tweet) { (err, ref) in
+            cell.tweet?.didLike.toggle()
+            let likes = tweet.didLike ? tweet.likes - 1 : tweet.likes + 1
+            cell.tweet?.likes = likes
+            
+            // only upload notification if tweet is being liked
+            guard !tweet.didLike else { return }
+//            NotificationService.shared.uploadNotification(toUser: tweet.user,
+//                                                          type: .like,
+//                                                          tweetID: tweet.tweetID)
+        }
+    }
+    
+    func handleReplyTapped(_ cell: TweetCell) {
+        guard let tweet = cell.tweet else { return }
+        let controller = UploadTweetController(user: tweet.user, config: .reply(tweet))
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true, completion: nil)
+    }
+    
+    func handleProfileImageTapped(_ cell: TweetCell) {
+        guard let user = cell.tweet?.user else { return }
+        let controller = ProfileController(user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
 }

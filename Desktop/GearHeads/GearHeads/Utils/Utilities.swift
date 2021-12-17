@@ -8,44 +8,9 @@
 import UIKit
 
 class Utilities {
-    
-    
-//    func inputContainerView(image: UIImage, textfield: UITextField) -> UIView {
-//        let view = UIView()
-//        view.backgroundColor = .twitterblue
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        view.heightAnchor.constraint(equalToConstant: 50).isActive = true
-//
-//        let iv = UIImageView()
-//        iv.image = image
-//        iv.translatesAutoresizingMaskIntoConstraints = false
-//
-//        view.addSubview(iv)
-//        iv.heightAnchor.constraint(equalToConstant: 24) .isActive = true
-//        iv.widthAnchor.constraint(equalToConstant: 24) .isActive = true
-//        iv.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 8) .isActive = true
-//        iv.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8) .isActive = true
-//
-//
-//
-//
-//
-//
-//        return view
-//    }
-//
-//
-//    func textfield(placeholder: String) -> UITextField {
-//        let iv = UITextField()
-//        iv.text = placeholder
-//
-//        return iv
-//    }
-    
-    
     func inputContainerView(image: UIImage, textField: UITextField) -> UIView {
         let view = UIView()
-        view.backgroundColor = .twitterblue
+        view.backgroundColor = .twitterBlue
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
@@ -89,18 +54,15 @@ class Utilities {
         return textfield
     }
     
-    func atrributedButton(firstPart: String, secondPart: String) -> UIButton {
-        
+    func attributedButton(_ firstPart: String, _ secondPart: String) -> UIButton {
         let button = UIButton(type: .system)
-
+        
         let attributedTitle = NSMutableAttributedString(string: firstPart, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16), NSAttributedString.Key.foregroundColor: UIColor.white])
-
-        attributedTitle.append(NSAttributedString(string: secondPart, attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 16),NSAttributedString.Key.foregroundColor: UIColor.white]))
-
+        
+        attributedTitle.append(NSAttributedString(string: secondPart, attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 16), NSAttributedString.Key.foregroundColor: UIColor.white]))
+        
         button.setAttributedTitle(attributedTitle, for: .normal)
         
-        button.translatesAutoresizingMaskIntoConstraints = false
-
         return button
     }
 }

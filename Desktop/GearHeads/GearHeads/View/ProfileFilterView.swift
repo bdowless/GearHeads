@@ -1,49 +1,58 @@
 //
 //  ProfileFilterView.swift
-//  TwitterTutorial2021
+//  TwitterTutorial
 //
-//  Created by Brandon Dowless on 9/30/21.
+//  Created by Brandon Dowless on 2/2/20.
+//  Copyright © 2020 Stephan Dowless. All rights reserved.
 //
 
 import UIKit
 
-private let reuseIdentifier = "ProfileFilter"
+private let reuseIdentifier = "ProfileFilterCell"
 
-protocol ProfileFilterViewDelegate: class {
-    func filterView( view: ProfileFilterView, didSelect indexPath: IndexPath)
+protocol ProfileFilterViewDelegate: AnyObject {
+    func filterView(_ view: ProfileFilterView, didSelect index: Int)
 }
 
 class ProfileFilterView: UIView {
     
-    //MARK: Properties
+    // MARK: - Properties
     
     weak var delegate: ProfileFilterViewDelegate?
     
-    lazy var collectionview: UICollectionView = {
+    lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .white
         cv.delegate = self
         cv.dataSource = self
-        cv.translatesAutoresizingMaskIntoConstraints = false
         return cv
     }()
+    
+    private let underlineView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .twitterBlue
+        return view
+    }()
+    
+    // MARK: - Lifecycle
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        collectionView.register(ProfileFilterCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        
         let selectedIndexPath = IndexPath(row: 0, section: 0)
-        collectionview.selectItem(at: selectedIndexPath, animated: true, scrollPosition: .left)
+        collectionView.selectItem(at: selectedIndexPath, animated: true, scrollPosition: .left)
         
-        
-        collectionview.register(ProfileFilterCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        
-        addSubview(collectionview)
-        collectionview.topAnchor.constraint(equalTo: topAnchor) .isActive = true
-        collectionview.leftAnchor.constraint(equalTo: leftAnchor) .isActive = true
-        collectionview.rightAnchor.constraint(equalTo: rightAnchor) .isActive = true
-        collectionview.heightAnchor.constraint(equalTo: heightAnchor) .isActive = true
+        addSubview(collectionView)
+        collectionView.addConstraintsToFillView(self)
+    }
     
+    override func layoutSubviews() {
+        addSubview(underlineView)
+        underlineView.anchor(left: leftAnchor, bottom: bottomAnchor,
+                             width: frame.width / 3, height: 2)
     }
     
     required init?(coder: NSCoder) {
@@ -51,22 +60,44 @@ class ProfileFilterView: UIView {
     }
 }
 
+// MARK: - UICollectionViewDataSource
+
 extension ProfileFilterView: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return ProfileFitlerOptions.allCases.count
+        return ProfileFilterOptions.allCases.count
     }
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionview.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ProfileFilterCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ProfileFilterCell
         
-        let option = ProfileFitlerOptions(rawValue: indexPath.row)
+        let option = ProfileFilterOptions(rawValue: indexPath.row)
         cell.option = option
+        
         return cell
     }
 }
 
+// MARK: - UICollectionViewDelegate
+
+extension ProfileFilterView: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath)
+        let xPosition = cell?.frame.origin.x ?? 0
+
+        UIView.animate(withDuration: 0.3) {
+            self.underlineView.frame.origin.x = xPosition
+        }
+        
+        delegate?.filterView(self, didSelect: indexPath.row)
+    }
+}
+
+// MARK: - UICollectionViewDelegateFlowLayout
+
 extension ProfileFilterView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: frame.width / 3 , height: frame.height)
+        let count = CGFloat(ProfileFilterOptions.allCases.count)
+        return CGSize(width: frame.width / count, height: frame.height)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -74,8 +105,5 @@ extension ProfileFilterView: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension ProfileFilterView: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        delegate?.filterView(view: self, didSelect: indexPath)
-    }
-}
+
+

@@ -6,17 +6,21 @@
 //
 
 import UIKit
+import ActiveLabel
 
-class uploadTweetController: UIViewController {
+class UploadTweetController: UIViewController {
     
-    //MARK: - Properties
+    // MARK: - Properties
     
     private let user: User
+    private let config: UploadTweetConfiguration
+    private lazy var viewModel = UploadTweetViewModel(config: config)
     
-    private lazy var tweetButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = .twitterblue
+    private lazy var actionButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.backgroundColor = .twitterBlue
         button.setTitle("Tweet", for: .normal)
+        button.titleLabel?.textAlignment = .center
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.setTitleColor(.white, for: .normal)
         
@@ -32,20 +36,28 @@ class uploadTweetController: UIViewController {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.heightAnchor.constraint(equalToConstant: 48) .isActive = true
-        iv.widthAnchor.constraint(equalToConstant: 48) .isActive = true
+        iv.setDimensions(width: 48, height: 48)
         iv.layer.cornerRadius = 48 / 2
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.backgroundColor = .twitterblue
+        iv.backgroundColor = .twitterBlue
         return iv
+    }()
+    
+    private lazy var replyLabel: ActiveLabel = {
+        let label = ActiveLabel()
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = .lightGray
+        label.mentionColor = .twitterBlue
+        label.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
+        return label
     }()
     
     private let captionTextView = CaptionTextView()
     
-    //MARK: - Lifecycle
+    // MARK: - Lifecycle
     
-    init(user: User) {
+    init(user: User, config: UploadTweetConfiguration) {
         self.user = user
+        self.config = config
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -55,14 +67,11 @@ class uploadTweetController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureProfileImageView()
         configureUI()
-        
-        
-        
+        configureMentionHandler()
     }
     
-    //MARK: - Selectors
+    // MARK: - Selectors
     
     @objc func handleCancel() {
         dismiss(animated: true, completion: nil)
@@ -70,44 +79,86 @@ class uploadTweetController: UIViewController {
     
     @objc func handleUploadTweet() {
         guard let caption = captionTextView.text else { return }
-        
-        TweetService.shared.uploadTweet(caption: caption) { (error, red) in
+            
+        TweetService.shared.uploadTweet(caption: caption, type: config) { (error, ref) in
             if let error = error {
                 print("DEBUG: Failed to upload tweet with error \(error.localizedDescription)")
+                return
             }
+
+            if case .reply(let tweet) = self.config {
+//                NotificationService.shared.uploadNotification(toUser: tweet.user,
+//                                                              type: .reply,
+//                                                              tweetID: tweet.tweetID)
+            }
+            
+            self.uploadMentionNotification(forCaption: caption, tweetID: ref.key)
+
             self.dismiss(animated: true, completion: nil)
         }
     }
     
+    // MARK: - API
     
-    //MARK: - API
+    fileprivate func uploadMentionNotification(forCaption caption: String, tweetID: String?) {
+        guard caption.contains("@") else { return }
+        let words = caption.components(separatedBy: .whitespacesAndNewlines)
+        
+        words.forEach { word in
+            guard word.hasPrefix("@") else { return }
+            
+            var username = word.trimmingCharacters(in: .symbols)
+            username = username.trimmingCharacters(in: .punctuationCharacters)
+            
+            UserService.shared.fetchUser(uid: username) { mentionedUser in
+//                NotificationService.shared.uploadNotification(toUser: mentionedUser,
+//                                                              type: .mention,
+//                                                              tweetID: tweetID)
+            }
+        }
+    }
     
-    //MARK: - Helpers
+    // MARK: - Helpers
     
     func configureUI() {
         view.backgroundColor = .white
+        configureNavigationBar()
+        
+        let imageCaptionStack = UIStackView(arrangedSubviews: [profileImageView, captionTextView])
+        imageCaptionStack.axis = .horizontal
+        imageCaptionStack.spacing = 12
+        imageCaptionStack.alignment = .leading
+        
+        let stack = UIStackView(arrangedSubviews: [replyLabel, imageCaptionStack])
+        stack.axis = .vertical
+        stack.spacing = 12
+        
+        view.addSubview(stack)
+        stack.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor,
+                     right: view.rightAnchor, paddingTop: 16, paddingLeft: 16,
+                     paddingRight: 16)
+        
+        profileImageView.sd_setImage(with: user.profileImageUrl, completed: nil)
+        
+        actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
+        captionTextView.placeholder.text = viewModel.placeholderText
+        
+        replyLabel.isHidden = !viewModel.shouldShowReplyLabel
+        guard let replyText = viewModel.replyText else { return }
+        replyLabel.text = replyText
+    }
+    
+    func configureNavigationBar() {
         navigationController?.navigationBar.barTintColor = .white
         navigationController?.navigationBar.isTranslucent = false
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancel))
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: tweetButton)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: actionButton)
     }
     
-    func configureProfileImageView() {
-        
-        let stack = UIStackView(arrangedSubviews: [profileImageView, captionTextView])
-        stack.axis = .horizontal
-        stack.spacing = 12
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(stack)
-        stack.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16) .isActive = true
-        stack.topAnchor.constraint(equalTo: view.topAnchor, constant: 16) .isActive = true
-        stack.rightAnchor.constraint(equalTo: view.rightAnchor) .isActive = true
-        
-        
-        profileImageView.sd_setImage(with: user.profileImageUrl, completed: nil)
+    func configureMentionHandler() {
+        replyLabel.handleMentionTap { mention in
+            print("DEBUG: Mentioned user is \(mention)")
+        }
     }
-    
 }

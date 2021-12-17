@@ -8,45 +8,41 @@
 import UIKit
 
 class ProfileFilterCell: UICollectionViewCell {
-    //MARK: Properties
     
-    var option: ProfileFitlerOptions! {
-        didSet{tweetLabel.text = option.description}
+    // MARK: - Properties
+    
+    var option: ProfileFilterOptions! {
+        didSet { titleLabel.text = option.description }
     }
     
-    var tweetLabel: UILabel = {
+    let titleLabel: UILabel = {
         let label = UILabel()
+        label.textColor = .lightGray
         label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .twitterblue
-        label.text = "Tweet"
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Test Filter"
         return label
     }()
     
     override var isSelected: Bool {
         didSet {
-            tweetLabel.font = isSelected ? UIFont.boldSystemFont(ofSize: 16) :
-            UIFont.systemFont(ofSize: 14)
-            tweetLabel.textColor = isSelected ? .twitterblue : .lightGray
+            titleLabel.font = isSelected ? UIFont.boldSystemFont(ofSize: 16) :
+                UIFont.systemFont(ofSize: 14)
+            titleLabel.textColor = isSelected ? .twitterBlue : .lightGray
         }
     }
     
-    //MARK: Lifecycle
+    // MARK: - Lifecycle
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .white
-        ConfigureCell()
+        
+        addSubview(titleLabel)
+        titleLabel.center(inView: self)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    func ConfigureCell() {
-        addSubview(tweetLabel)
-        tweetLabel.centerXAnchor.constraint(equalTo: centerXAnchor) .isActive = true
-        tweetLabel.centerYAnchor.constraint(equalTo: centerYAnchor) .isActive = true
     }
 }
 
